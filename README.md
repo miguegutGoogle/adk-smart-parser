@@ -1,12 +1,12 @@
 # Google ADK 2.0 - Smart Parser
 
-A full-featured multi-agent support case and internal bug analysis pipeline showcasing **Google Agent Development Kit (ADK) 2.0**.
+A multi-agent smart parser featuring the new **Google Agent Development Kit (ADK) 2.0** to structure chaotic data into beautifully formatted data.
 
-This project serves as a clear, interactive reference demo for:
-1. **Smart Parsing (Pydantic Structured Output)**: Extracting typed schemas directly from chaotic, multi-channel enterprise logs without fragile regex or boilerplate `FunctionNode` API wrappers.
-2. **Sequential Execution**: Chaining agents and nodes in a linear progression.
-3. **Parallel Execution & Fan-In Barriers**: Running independent analyzers (`case_analyzer` and `bug_analyzer`) concurrently and synchronizing their outputs at a `JoinNode` barrier.
-4. **Content-Aware Loop Execution**: A self-auditing QA loop (`loop_gate` $\leftrightarrow$ `report_refiner`) guarded by conditional edge routing (`route="refine"` vs `DEFAULT_ROUTE`) that inspects draft reports for missing executive alerts and redacts confidential internal tracking URLs (`internal.pr.tracker/...`).
+This application showcases the power of ADK 2.0 for:
+1. **Smart Parsing (Pydantic Structured Output)**: Easily extracting information directly from chaotic, enterprise logs.
+2. **Sequential Execution**: Chaining agents in a linear progression.
+3. **Parallel Execution & Fan-In Barriers**: Running agents concurrently and synchronizing their outputs.
+4. **Content-Aware Loop Execution**: A self-auditing quality check loop that inspects draft reports for missing executive alerts and redacts confidential internal tracking URLs.
 
 ---
 
@@ -14,12 +14,12 @@ This project serves as a clear, interactive reference demo for:
 
 In **ADK 1.0** (such as projects like [`miguegutGoogle/poet`](https://github.com/miguegutGoogle/poet/blob/main/poet/prompt.py)), multi-agent control flow was entirely **prompt-driven**. You had to cajole the LLM in plain text: *"When you finish writing the stanza, invoke the next agent tool"*. This left routing vulnerable to probabilistic drift, missed handoffs, and infinite loops.
 
-In **ADK 2.0**, **control flow belongs to the graph (`Workflow`), NOT the LLM prompt**:
+But now in **ADK 2.0**, **control flow belongs to the graph (`Workflow`), NOT the LLM prompt**:
 
 | Capability | ADK 1.0 (Prompt-Driven Routing) | ADK 2.0 (Deterministic Workflow Graph) |
 | :--- | :--- | :--- |
 | **Agent Handoffs** | Rely on the LLM generating tool calls to pass control to the next agent. | **100% Deterministic Edges** (`A -> B`). Zero risk of skipped steps. |
-| **Parallel Execution** | Hard to orchestrate without writing custom threading/async wrapper scripts. | **Native Fork & Fan-In** (`A -> (B, C) -> JoinNode`). Runs concurrently out-of-the-box. |
+| **Parallel Execution** | Hard to orchestrate without writing custom wrapper scripts. | **Native Fork & Fan-In** (`A -> (B, C) -> JoinNode`). Runs concurrently out-of-the-box. |
 | **Conditional Loops** | LLMs can loop infinitely or forget to exit without complex text instructions. | **Deterministic Python Gates** (`FunctionNode` with safety counters `attempts < 3`). |
 | **Prompt Complexity** | Prompts bloated with routing rules, handoff syntax, and state reminders. | Prompts focused **100% on domain intelligence** (analyzing cases or redacting URLs). |
 
@@ -42,7 +42,7 @@ graph TD
 ```
 
 ### Node Breakdown
-* **`greeter` (`Agent`)**: Introduces the Case & Bug Analyzer to the user and announces parallel analysis.
+* **`greeter` (`Agent`)**: Introduces the Case & Bug Analyzer to the user and starts the parallel analysis.
 * **`case_analyzer` (`Agent`)**: Uses native **Smart Parsing** (`output_schema=CasesReport`) to parse chaotic email copy-paste, Slack transcripts, and PagerDuty incident alerts (`cases.py`) into typed `CaseDetails` Pydantic instances.
 * **`bug_analyzer` (`Agent`)**: Uses native **Smart Parsing** (`output_schema=BugsReport`) to extract internal engineering bugtracker dumps (`bugs.py`) into typed `BugDetails` instances.
 * **`results_join` (`JoinNode`)**: Synchronization barrier that waits for both parallel branches to complete and merges their structured JSON outputs.
@@ -58,7 +58,7 @@ graph TD
 ## ⚡ Key Highlights of ADK 2.0 Displayed
 
 ### 1. LLM Smart Parsing for Chaotic Data vs. Regex
-We love parsing—and choosing the right parsing paradigm for the shape of your data is critical.
+We love parsing! Because of that, choosing the right tool for the shape of your data is critical.
 
 Look at the synthetic enterprise logs in [`data/cases.py`](file:///Users/miguegut/Desktop/ADK2.0/case_analyzer/data/cases.py) *(note: 100% synthetic data generated for this demo)*:
 ```text
@@ -72,8 +72,8 @@ Subject: Fwd: URGENT: Cloud SQL CPU hitting 100% constantly!! (#ticket-10241)
 [[PAGERDUTY INCIDENT ALERT - Case-10243]]
 **API Gateway intermittent 502 Bad Gateway errors**
 ```
-* **Why Regex / Imperative Code Fails Here**: Across an email copy-paste, a Slack transcript, and a PagerDuty alert, ticket IDs are scattered (`#ticket-10241` vs `ref: 10242` vs `Case-10243`), timestamps follow different formats, and critical fields like `escalated` are implicit (*"escalating ticket 10242 to Tier 3 support bridge immediately!!"*). Writing fragile regex rules to parse all three into a clean table would break constantly.
-* **Why Native ADK 2.0 Smart Parsing Succeeds**: In ADK 2.0, you pass your Pydantic schema directly to `output_schema=` on an `Agent` without boilerplate function wrappers. More importantly, **Smart Parsing does much more than literal string extraction**—look at our `CaseDetails` schema:
+* **Why Regex / Imperative Code Fails Here**: Across an email copy-paste, a Slack transcript, and a PagerDuty alert, ticket IDs are scattered (`#ticket-10241` vs `ref: 10242` vs `Case-10243`), timestamps follow different formats, and critical fields like `escalated` are implicit (*"escalating ticket 10242 to Tier 3 support bridge immediately!!"*). Writing regex rules to parse all three into a clean table would break constantly.
+* **Why Native ADK 2.0 Smart Parsing Succeeds**: In ADK 2.0, you pass your Pydantic schema directly to `output_schema=` on an `Agent` without boilerplate function wrappers. More importantly, **Smart Parsing does much more than literal string extraction**. Look at our `CaseDetails` schema:
 ```python
 # Simplified representation (see smart_parser/agent.py for Pydantic Field descriptions)
 class CaseDetails(BaseModel):
@@ -84,7 +84,7 @@ class CaseDetails(BaseModel):
     bugs: list[int] # Internal bug IDs linked to this case
     next: str       # Next recommended action step to take
 ```
-Notice how `output_schema` commands the LLM to perform three distinct cognitive tasks in one pass:
+Notice how `output_schema` tells the LLM to perform three distinct cognitive tasks in one pass:
 1. **Extraction**: Locates scattered `case_id`, `subject`, and linked `bugs` across email headers, chat timestamps, or PagerDuty incident cards.
 2. **Semantic Reasoning & Classification**: Deduces `escalated: True` by recognizing urgency cues (*"escalating ticket 10242 to Tier 3 support bridge immediately!!"*) even when the word "True" never appears.
 3. **Summarization & Action Planning**: Synthesizes past efforts into `done` and recommends the logical `next` troubleshooting action based on current evidence.
