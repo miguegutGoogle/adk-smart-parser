@@ -31,9 +31,14 @@ def run_pipeline():
     runner = InMemoryRunner(node=root_agent)
     
     print("\nStarting execution session 'demo_session'...")
+    runner.session_service.create_session_sync(
+        app_name=runner.app.name,
+        user_id="demo_user",
+        session_id="demo_session",
+    )
     user_msg = types.Content(
         role="user",
-        parts=[types.Part.from_text("Start analysis")]
+        parts=[types.Part.from_text(text="Start analysis")]
     )
 
     try:
