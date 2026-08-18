@@ -88,13 +88,13 @@ Notice how `output_schema` commands the LLM to perform three distinct cognitive 
 2. **Semantic Reasoning & Classification**: Deduces `escalated: True` by recognizing urgency cues (*"escalating ticket 10242 to Tier 3 support bridge immediately!!"*) even when the word "True" never appears.
 3. **Summarization & Action Planning**: Synthesizes past efforts into `done` and recommends the logical `next` troubleshooting action based on current evidence.
 
+To use the schema, simply pass your Pydantic model into the Agent initialization:
+
 ```python
 case_analyzer = Agent(
-    name="case_analyzer",
-    model="gemini-flash-latest",
-    instruction="Analyze these unstructured support cases...",
+    ...
     output_schema=CasesReport,
-    mode="single_turn",
+    ...
 )
 ```
 
