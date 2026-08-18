@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from typing import List, Literal, Any
 from pydantic import BaseModel, Field
 from google.adk import Agent, Context, Workflow
@@ -23,6 +24,18 @@ try:
 except ImportError:
     from cases import UNSTRUCTURED_CASES
     from bugs import UNSTRUCTURED_BUGS
+
+# Ensure GOOGLE_API_KEY from .env or environment is synced to GEMINI_API_KEY
+if not os.environ.get("GEMINI_API_KEY") and os.environ.get("GOOGLE_API_KEY"):
+    os.environ["GEMINI_API_KEY"] = os.environ["GOOGLE_API_KEY"]
+elif os.path.exists(".env"):
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        if not os.environ.get("GEMINI_API_KEY") and os.environ.get("GOOGLE_API_KEY"):
+            os.environ["GEMINI_API_KEY"] = os.environ["GOOGLE_API_KEY"]
+    except ImportError:
+        pass
 
 MODEL_NAME = "gemini-flash-latest"
 

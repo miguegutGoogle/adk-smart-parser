@@ -15,6 +15,26 @@
 import os
 from google.genai import types
 from google.adk.runners import InMemoryRunner
+
+def _load_env_and_keys():
+    """Load .env file and map GOOGLE_API_KEY to GEMINI_API_KEY if needed."""
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        if os.path.exists(".env"):
+            with open(".env") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        os.environ.setdefault(k.strip(), v.strip())
+
+    if not os.environ.get("GEMINI_API_KEY") and os.environ.get("GOOGLE_API_KEY"):
+        os.environ["GEMINI_API_KEY"] = os.environ["GOOGLE_API_KEY"]
+
+_load_env_and_keys()
+
 try:
     from case_analyzer.agent import root_agent
 except ImportError:
