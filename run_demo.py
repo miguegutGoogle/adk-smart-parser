@@ -15,7 +15,10 @@
 import os
 from google.genai import types
 from google.adk.runners import InMemoryRunner
-from agent import root_agent
+try:
+    from case_analyzer.agent import root_agent
+except ImportError:
+    from agent import root_agent
 
 def run_pipeline():
     print("🚀 Initializing ADK 2.0 Support Case & Bug Analyzer Workflow...")
