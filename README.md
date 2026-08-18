@@ -82,6 +82,9 @@ class CaseDetails(BaseModel):
     done: str = Field(..., description="Key troubleshooting actions already completed")
     bugs: List[int] = Field(default_factory=list, description="Internal bug IDs linked to this case")
     next: str = Field(..., description="Next recommended action step to take")
+
+class CasesReport(BaseModel):
+    cases: List[CaseDetails] = Field(..., description="List of all structured cases")
 ```
 Notice how `output_schema` commands the LLM to perform three distinct cognitive tasks in one pass:
 1. **Extraction**: Locates scattered `case_id`, `subject`, and linked `bugs` across email headers, chat timestamps, or PagerDuty incident cards.
