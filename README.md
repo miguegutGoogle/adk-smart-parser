@@ -91,13 +91,28 @@ Using a Python `FunctionNode` (`loop_gate`) as the traffic controller instead of
 
 ## 🚀 Running the Demo
 
-Execute the demo runner script to watch the ADK 2.0 graph transition step-by-step:
+You can run this demo either interactively using the **ADK Web Studio UI** (recommended for video demos) or via the CLI runner script.
 
+### Option 1: ADK Web Studio UI (Recommended)
+Launch the ADK visual dev server:
+```bash
+adk web --port 8000
+```
+1. Open `http://localhost:8000` in your web browser.
+2. You will see the **interactive visual graph** showing all nodes and edges.
+3. Start a conversation by typing `"Start analysis"` in the chat box.
+4. Watch the live node execution trace:
+   - See `case_analyzer` and `bug_analyzer` run concurrently in parallel.
+   - Inspect the merged structured JSON at `results_join`.
+   - Watch `loop_gate` redirect the draft report to `report_refiner` on the `"refine"` route and return to finish on the second pass.
+
+### Option 2: Standalone CLI Script
+Run the automated pipeline execution script from your terminal:
 ```bash
 python run_demo.py
 ```
 
-### Expected Execution Flow
+#### Expected Execution Flow
 1. **`greeter`**: Welcomes the user.
 2. **`case_analyzer` & `bug_analyzer` (Parallel)**: Parses chaotic support & bug logs into Pydantic models.
 3. **`results_join`**: Synchronizes both branches.
