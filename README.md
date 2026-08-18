@@ -118,13 +118,28 @@ When inspecting whether a draft report contains a leaked internal URL (`internal
    export GEMINI_API_KEY="your-gemini-api-key-here"
    ```
 
+## 📁 Project Directory Layout
+
+```
+adk-smart-parser/
+├── README.md
+├── requirements.txt
+└── smart_parser/
+    ├── __init__.py
+    ├── agent.py            # ADK 2.0 Workflow Graph & Smart Parsing Agents
+    └── data/
+        ├── __init__.py
+        ├── cases.py        # Messy multi-channel support logs (synthetic)
+        └── bugs.py         # Bugtracker dump with internal tracker URLs (synthetic)
+```
+
 ---
 
 ## 🚀 Running the Demo (ADK Web Studio UI)
 
-Launch the ADK visual dev server:
+Launch the ADK visual dev server pointing to the `smart_parser` package:
 ```bash
-adk web --port 8000
+adk web --port 8000 smart_parser
 ```
 1. Open `http://localhost:8000` in your web browser.
 2. You will see the **interactive visual graph** showing all nodes and edges.

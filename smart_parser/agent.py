@@ -17,8 +17,8 @@ from pydantic import BaseModel, Field
 from google.adk import Agent, Context, Workflow
 from google.adk.workflow import FunctionNode, JoinNode, Edge, DEFAULT_ROUTE
 
-from data.cases import UNSTRUCTURED_CASES
-from data.bugs import UNSTRUCTURED_BUGS
+from .data.cases import UNSTRUCTURED_CASES
+from .data.bugs import UNSTRUCTURED_BUGS
 
 MODEL_NAME = "gemini-flash-latest"
 
