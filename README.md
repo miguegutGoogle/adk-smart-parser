@@ -42,8 +42,23 @@ graph TD
 
 ## ⚡ Key Highlights of ADK 2.0 Displayed
 
-### 1. No More Boilerplate for Smart Parsing
-In older frameworks, getting structured JSON from an LLM required wrapping `genai.Client().models.generate_content(...)` inside custom Python functions. In ADK 2.0, you simply pass your Pydantic schema to `output_schema=` on any `Agent`:
+### 1. LLM Smart Parsing for Chaotic Data vs. Regex
+We love parsing—and choosing the right parsing paradigm for the shape of your data is critical.
+
+Look at the synthetic enterprise logs in [`data/cases.py`](file:///Users/miguegut/Desktop/ADK2.0/case_analyzer/data/cases.py) *(note: 100% synthetic data generated for this demo)*:
+```text
+--- EMAIL FORWARD ---
+Subject: Fwd: URGENT: Cloud SQL CPU hitting 100% constantly!! (#ticket-10241)
+...
+=== SLACK TRANSCRIPT (CHANNEL #support-triage) ===
+[10:00 CDT] miguel_g: hey @here got a weird one - ref: 10242...
+[11:32 CDT] sarah_mgr: escalating ticket 10242 to Tier 3 support bridge immediately!!
+...
+[[PAGERDUTY INCIDENT ALERT - Case-10243]]
+**API Gateway intermittent 502 Bad Gateway errors**
+```
+* **Why Regex / Imperative Code Fails Here**: Across an email copy-paste, a Slack transcript, and a PagerDuty alert, ticket IDs are scattered (`#ticket-10241` vs `ref: 10242` vs `Case-10243`), timestamps follow different formats, and critical fields like `escalated` are implicit (*"escalating ticket 10242 to Tier 3 support bridge immediately!!"*). Writing fragile regex rules to parse all three into a clean table would break constantly.
+* **Why Native ADK 2.0 Smart Parsing Succeeds**: In ADK 2.0, you eliminate boilerplate function wrappers around LLM calls. Simply pass your typed Pydantic model (`CasesReport`) to `output_schema=` on `Agent`:
 ```python
 case_analyzer = Agent(
     name="case_analyzer",
@@ -54,12 +69,13 @@ case_analyzer = Agent(
 )
 ```
 
-### 2. Why Python Logic (`FunctionNode`) Rules Loop Gates
-ADK 2.0 enforces that any cycle in a `Workflow` graph must contain at least one conditional routed edge (`Edge(..., route="...")`) to prevent infinite loops.
-Using a Python `FunctionNode` (`loop_gate`) as the traffic controller instead of an LLM agent provides:
-* **Sub-millisecond speed & $0 token cost** for string inspection (`"internal.pr.tracker/" in text`).
-* **Mathematical determinism** with safety counters (`attempts < 3`).
-* **True Hybrid AI Design**: Let LLMs handle fuzzy synthesis and redaction; let Python handle exact conditional branching.
+### 2. Python Exact Parsing (`FunctionNode`) for Conditional Loop Gates
+While LLMs excel at chaotic natural language parsing, **we shouldn't waste tokens, latency, or probabilistic model variation on exact string checks**.
+
+When inspecting whether a draft report contains a leaked internal URL (`internal.pr.tracker/`), a Python substring check (`"internal.pr.tracker/" in text`) inside a `FunctionNode` (`loop_gate`) provides:
+* **Sub-millisecond latency & $0 token cost** for exact string inspection.
+* **Mathematical determinism & safety caps** (`attempts < 3`).
+* **Graph Cycle Compliance**: ADK 2.0 enforces that any cycle in a `Workflow` graph must contain at least one conditional routed edge (`Edge(..., route="...")`) to prevent infinite loops. Let LLM agents handle fuzzy synthesis and redaction; let Python handle exact conditional routing.
 
 ---
 
