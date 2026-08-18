@@ -5,14 +5,14 @@ A multi-agent smart parser featuring the new **Google Agent Development Kit (ADK
 This application showcases the power of ADK 2.0 for:
 1. **Smart Parsing (Pydantic Structured Output)**: Easily extracting information directly from chaotic, enterprise logs.
 2. **Sequential Execution**: Chaining agents in a linear progression.
-3. **Parallel Execution & Fan-In Barriers**: Running agents concurrently and synchronizing their outputs.
-4. **Content-Aware Loop Execution**: A self-auditing quality check loop that inspects draft reports for missing executive alerts and redacts confidential internal tracking URLs.
+3. **Parallel Execution**: Running agents concurrently and synchronizing their outputs.
+4. **Content-Aware Loop Execution**: A self-auditing quality check loop that inspects draft reports, redacts confidential tracking URLs and looks for missing executive alerts.
 
 ---
 
 ## ⚡ The ADK 2.0 Paradigm Shift: Graph Orchestration vs. Prompt Orchestration
 
-In **ADK 1.0** (such as projects like [`miguegutGoogle/poet`](https://github.com/miguegutGoogle/poet/blob/main/poet/prompt.py)), multi-agent control flow was entirely **prompt-driven**. You had to cajole the LLM in plain text: *"When you finish writing the stanza, invoke the next agent tool"*. This left routing vulnerable to probabilistic drift, missed handoffs, and infinite loops.
+If we look back at **ADK 1.0** (such as projects like [`miguegutGoogle/poet`](https://github.com/miguegutGoogle/poet/blob/main/poet/prompt.py)), multi-agent control flow was entirely **prompt-driven**. You had to cajole the LLM in plain text: *"When you finish writing the stanza, invoke the next agent tool"*. This left routing vulnerable to probabilistic drift, missed handoffs, and infinite loops.
 
 But now in **ADK 2.0**, **control flow belongs to the graph (`Workflow`), NOT the LLM prompt**:
 
@@ -20,7 +20,7 @@ But now in **ADK 2.0**, **control flow belongs to the graph (`Workflow`), NOT th
 | :--- | :--- | :--- |
 | **Agent Handoffs** | Rely on the LLM generating tool calls to pass control to the next agent. | **100% Deterministic Edges** (`A -> B`). Zero risk of skipped steps. |
 | **Parallel Execution** | Hard to orchestrate without writing custom wrapper scripts. | **Native Fork & Fan-In** (`A -> (B, C) -> JoinNode`). Runs concurrently out-of-the-box. |
-| **Conditional Loops** | LLMs can loop infinitely or forget to exit without complex text instructions. | **Deterministic Python Gates** (`FunctionNode` with safety counters `attempts < 3`). |
+| **Conditional Loops** | LLMs can loop infinitely or forget to exit without complex text instructions. | **Deterministic Iteration** |
 | **Prompt Complexity** | Prompts bloated with routing rules, handoff syntax, and state reminders. | Prompts focused **100% on domain intelligence** (analyzing cases or redacting URLs). |
 
 ---
