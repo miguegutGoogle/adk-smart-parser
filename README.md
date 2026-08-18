@@ -36,9 +36,9 @@ graph TD
     D -->|Fan-In Barrier| E
     E -->|Sequential| F[report_presenter: Agent]
     F -->|Sequential| G[loop_gate: FunctionNode<br/>Content QA Switch]
-    G -->|route='refine'<br/>Pass 1: Alert Banner & Redact| H[report_refiner: Agent]
-    H -->|Loops Back| G
-    G -->|DEFAULT_ROUTE<br/>Pass 2: QA Approved| I((DONE))
+    G -->|route='refine'<br/>QA Failed: Add Banner & Redact| H[report_refiner: Agent]
+    H -->|Loops Back to Verify| G
+    G -->|DEFAULT_ROUTE<br/>QA Passed: Report Clean| I((DONE))
 ```
 
 ### Node Breakdown
@@ -50,7 +50,7 @@ graph TD
 * **`loop_gate` (`FunctionNode`)**: A 100% deterministic Python routing gate that inspects the draft report for:
   1. Leaked confidential internal URLs (`internal.pr.tracker/...`).
   2. Missing executive priority alert banners (`EXECUTIVE ESCALATION ALERT`).
-  * If either condition is violated, it emits `ctx.route = "refine"` and passes the draft report into the loop. Once clean, it emits `DEFAULT_ROUTE`.
+  * **Dynamic While-Loop**: If either condition is violated, it emits `ctx.route = "refine"` to invoke `report_refiner`, which loops back to `loop_gate`. It repeats this self-auditing cycle until the report passes QA (or hits a safety cap), at which point it emits `DEFAULT_ROUTE`.
 * **`report_refiner` (`Agent`)**: Invoked on the `"refine"` route to prepend a prominent **`### 🚨 EXECUTIVE ESCALATION ALERT 🚨`** banner highlighting P1 escalated cases and redact all sensitive internal PR/bugtracker URLs.
 
 ---
@@ -164,6 +164,6 @@ adk web --port 8000 smart_parser
    - **`case_analyzer` & `bug_analyzer` (Parallel)**: Parses chaotic support & bug logs into Pydantic models simultaneously.
    - **`results_join`**: Fan-in barrier synchronizes both branches.
    - **`report_presenter`**: Outputs initial draft table (contains `internal.pr.tracker/48392` and lacks alert banner).
-   - **`loop_gate` (Iter 1)**: Detects internal tracking URL & missing alert banner $\rightarrow$ triggers `route="refine"`.
-   - **`report_refiner`**: Adds the `🚨 EXECUTIVE ESCALATION ALERT 🚨` banner and strips `internal.pr.tracker/48392`.
-   - **`loop_gate` (Iter 2)**: Verifies no internal links + alert banner present $\rightarrow$ emits `DEFAULT_ROUTE` $\rightarrow$ Complete!
+   - **`loop_gate` (QA Check)**: Detects internal tracking URL & missing alert banner $\rightarrow$ triggers `route="refine"`.
+   - **`report_refiner`**: Adds the `🚨 EXECUTIVE ESCALATION ALERT 🚨` banner and strips `internal.pr.tracker/48392` $\rightarrow$ loops back to `loop_gate`.
+   - **`loop_gate` (Re-verify)**: Verifies no internal links + alert banner present $\rightarrow$ emits `DEFAULT_ROUTE` $\rightarrow$ Complete!
