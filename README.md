@@ -75,13 +75,14 @@ Subject: Fwd: URGENT: Cloud SQL CPU hitting 100% constantly!! (#ticket-10241)
 * **Why Regex / Imperative Code Fails Here**: Across an email copy-paste, a Slack transcript, and a PagerDuty alert, ticket IDs are scattered (`#ticket-10241` vs `ref: 10242` vs `Case-10243`), timestamps follow different formats, and critical fields like `escalated` are implicit (*"escalating ticket 10242 to Tier 3 support bridge immediately!!"*). Writing fragile regex rules to parse all three into a clean table would break constantly.
 * **Why Native ADK 2.0 Smart Parsing Succeeds**: In ADK 2.0, you pass your Pydantic schema directly to `output_schema=` on an `Agent` without boilerplate function wrappers. More importantly, **Smart Parsing does much more than literal string extraction**—look at our `CaseDetails` schema:
 ```python
+# Simplified representation (see smart_parser/agent.py for Pydantic Field descriptions)
 class CaseDetails(BaseModel):
-    case_id: int = Field(..., description="Support case ID number (e.g., 10241)")
-    subject: str = Field(..., description="One-line summary of the support case")
-    escalated: bool = Field(..., description="True if the case has been escalated, otherwise False")
-    done: str = Field(..., description="Key troubleshooting actions already completed")
-    bugs: List[int] = Field(default_factory=list, description="Internal bug IDs linked to this case")
-    next: str = Field(..., description="Next recommended action step to take")
+    case_id: int    # Support case ID number (e.g., 10241)
+    subject: str    # One-line summary of the support case
+    escalated: bool # True if the case has been escalated
+    done: str       # Key troubleshooting actions already completed
+    bugs: list[int] # Internal bug IDs linked to this case
+    next: str       # Next recommended action step to take
 ```
 Notice how `output_schema` commands the LLM to perform three distinct cognitive tasks in one pass:
 1. **Extraction**: Locates scattered `case_id`, `subject`, and linked `bugs` across email headers, chat timestamps, or PagerDuty incident cards.
