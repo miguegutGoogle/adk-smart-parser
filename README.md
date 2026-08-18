@@ -19,7 +19,7 @@ But now in **ADK 2.0**, **control flow belongs to the graph (`Workflow`), NOT th
 | Capability | ADK 1.0 (Prompt-Driven Routing) | ADK 2.0 (Deterministic Workflow Graph) |
 | :--- | :--- | :--- |
 | **Agent Handoffs** | Rely on the LLM generating tool calls to pass control to the next agent. | **100% Deterministic Edges** (`A -> B`). Zero risk of skipped steps. |
-| **Parallel Execution** | Hard to orchestrate without writing custom wrapper scripts. | **Native Fork & Fan-In** (`A -> (B, C) -> JoinNode`). Runs concurrently out-of-the-box. |
+| **Parallel Execution** | Hard to orchestrate without writing custom wrapper scripts. | **Runs concurrently out-of-the-box.** |
 | **Conditional Loops** | LLMs can loop infinitely or forget to exit without complex text instructions. | **Deterministic Iteration** |
 | **Prompt Complexity** | Prompts bloated with routing rules, handoff syntax, and state reminders. | Prompts focused **100% on domain intelligence** (analyzing cases or redacting URLs). |
 
