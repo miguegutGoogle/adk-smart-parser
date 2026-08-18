@@ -19,11 +19,11 @@ from google.adk import Agent, Context, Workflow
 from google.adk.workflow import FunctionNode, JoinNode, Edge, DEFAULT_ROUTE
 
 try:
-    from .cases import UNSTRUCTURED_CASES
-    from .bugs import UNSTRUCTURED_BUGS
+    from .data.cases import UNSTRUCTURED_CASES
+    from .data.bugs import UNSTRUCTURED_BUGS
 except ImportError:
-    from cases import UNSTRUCTURED_CASES
-    from bugs import UNSTRUCTURED_BUGS
+    from data.cases import UNSTRUCTURED_CASES
+    from data.bugs import UNSTRUCTURED_BUGS
 
 # Ensure GOOGLE_API_KEY from .env or environment is synced to GEMINI_API_KEY
 if not os.environ.get("GEMINI_API_KEY") and os.environ.get("GOOGLE_API_KEY"):
