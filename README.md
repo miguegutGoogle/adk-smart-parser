@@ -1,4 +1,4 @@
-# Google ADK 2.0 Case & Bug Analyzer Demo
+# Google ADK 2.0 - Smart Parser
 
 A full-featured multi-agent support case and internal bug analysis pipeline showcasing **Google Agent Development Kit (ADK) 2.0**.
 
