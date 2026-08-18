@@ -89,11 +89,8 @@ Using a Python `FunctionNode` (`loop_gate`) as the traffic controller instead of
 
 ---
 
-## 🚀 Running the Demo
+## 🚀 Running the Demo (ADK Web Studio UI)
 
-You can run this demo either interactively using the **ADK Web Studio UI** (recommended for video demos) or via the CLI runner script.
-
-### Option 1: ADK Web Studio UI (Recommended)
 Launch the ADK visual dev server:
 ```bash
 adk web --port 8000
@@ -102,21 +99,10 @@ adk web --port 8000
 2. You will see the **interactive visual graph** showing all nodes and edges.
 3. Start a conversation by typing `"Start analysis"` in the chat box.
 4. Watch the live node execution trace:
-   - See `case_analyzer` and `bug_analyzer` run concurrently in parallel.
-   - Inspect the merged structured JSON at `results_join`.
-   - Watch `loop_gate` redirect the draft report to `report_refiner` on the `"refine"` route and return to finish on the second pass.
-
-### Option 2: Standalone CLI Script
-Run the automated pipeline execution script from your terminal:
-```bash
-python run_demo.py
-```
-
-#### Expected Execution Flow
-1. **`greeter`**: Welcomes the user.
-2. **`case_analyzer` & `bug_analyzer` (Parallel)**: Parses chaotic support & bug logs into Pydantic models.
-3. **`results_join`**: Synchronizes both branches.
-4. **`report_presenter`**: Outputs initial draft table (contains `internal.pr.tracker/48392` and lacks alert banner).
-5. **`loop_gate` (Iter 1)**: Detects internal tracking URL & missing alert banner $\rightarrow$ triggers `route="refine"`.
-6. **`report_refiner`**: Adds the `🚨 EXECUTIVE ESCALATION ALERT 🚨` banner and strips `internal.pr.tracker/48392`.
-7. **`loop_gate` (Iter 2)**: Verifies no internal links + alert banner present $\rightarrow$ emits `DEFAULT_ROUTE` $\rightarrow$ Complete!
+   - **`greeter`**: Welcomes the user.
+   - **`case_analyzer` & `bug_analyzer` (Parallel)**: Parses chaotic support & bug logs into Pydantic models simultaneously.
+   - **`results_join`**: Fan-in barrier synchronizes both branches.
+   - **`report_presenter`**: Outputs initial draft table (contains `internal.pr.tracker/48392` and lacks alert banner).
+   - **`loop_gate` (Iter 1)**: Detects internal tracking URL & missing alert banner $\rightarrow$ triggers `route="refine"`.
+   - **`report_refiner`**: Adds the `🚨 EXECUTIVE ESCALATION ALERT 🚨` banner and strips `internal.pr.tracker/48392`.
+   - **`loop_gate` (Iter 2)**: Verifies no internal links + alert banner present $\rightarrow$ emits `DEFAULT_ROUTE` $\rightarrow$ Complete!
